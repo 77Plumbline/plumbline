@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plumbline — Responsible AI risk intelligence</title>
+<meta name="description" content="Plumbline reads what a company can show, not what it claims, and returns a brief you can act on. A grade, an outlook, and the questions worth asking next." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --paper:#FBFAF6;--panel:#F4F2EB;--ink:#1A1813;
+  --ink-70:rgba(26,24,19,.72);--ink-50:rgba(26,24,19,.50);--ink-35:rgba(26,24,19,.35);
+  --hair:rgba(26,24,19,.12);--hair-2:rgba(26,24,19,.06);
+  --teal:#0E5C58;--teal-soft:rgba(14,92,88,.07);
+  --gA:#307473;--gB:#62936B;--gC:#C39323;--gD:#B55935;--gF:#98363B;
+  --maxw:1080px;
+  --sans:"DM Sans",system-ui,-apple-system,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.6,.2,1);--settle:cubic-bezier(.34,.01,.2,1);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  background-image:radial-gradient(circle,rgba(26,24,19,.035) 1px,transparent 1px);background-size:24px 24px}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 30px}
+::selection{background:var(--teal);color:var(--paper)}
+h1,h2{font-weight:700;letter-spacing:-.035em;margin:0;line-height:1.04}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);font-weight:500;display:inline-flex;align-items:center;gap:9px}
+.eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--paper);border:1.5px solid var(--teal);box-shadow:0 9px 0 -2.5px var(--teal)}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .85s var(--ease),transform .85s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+
+nav{position:sticky;top:0;z-index:60;background:rgba(251,250,246,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--hair)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:700;letter-spacing:-.02em}
+.mark .anchor{fill:var(--ink)}.mark .line{stroke:var(--ink);stroke-width:1.3}.mark .bob-m{fill:var(--paper);stroke:var(--ink);stroke-width:1.5}
+.nav-cta{font-family:var(--mono);font-size:12px;letter-spacing:.03em;text-decoration:none;color:var(--ink);border:1px solid var(--hair);border-radius:3px;padding:8px 15px;transition:border-color .25s,background .25s}
+.nav-cta:hover{border-color:var(--teal);background:var(--teal-soft)}
+
+header{padding:96px 0 40px;text-align:center;position:relative;z-index:2}
+header .eyebrow{justify-content:center}
+.hero h1{font-size:clamp(44px,7vw,82px);letter-spacing:-.04em;margin:24px auto 0;max-width:11ch}
+.hero .lede{font-size:clamp(18px,2vw,21px);line-height:1.5;color:var(--ink-70);margin:24px auto 0;max-width:30em;font-weight:400}
+.capture{margin:34px auto 0;max-width:440px}
+.field{display:flex;gap:9px}
+.field input{flex:1;font-family:var(--sans);font-size:15px;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:5px;padding:14px 15px;outline:none;transition:border-color .25s}
+.field input::placeholder{color:var(--ink-35)}.field input:focus{border-color:var(--teal)}
+.field button{font-family:var(--mono);font-size:12.5px;letter-spacing:.02em;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:5px;padding:0 22px;cursor:pointer;white-space:nowrap;transition:background .25s,border-color .25s}
+.field button:hover{background:var(--teal);border-color:var(--teal)}
+.micro{font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--ink-35);margin-top:12px}
+.capture.done .field{display:none}
+.confirm{display:none;font-family:var(--mono);font-size:13px;color:var(--teal);padding-top:4px}
+.capture.done .confirm{display:block}
+
+/* LIVE READ */
+.live{padding:46px 0 80px;position:relative;z-index:2}
+.live .cap{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-35);text-align:center;margin-bottom:20px}
+.seg-wrap{display:flex;justify-content:center;margin-bottom:22px}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--hair);border-radius:7px;padding:4px;gap:3px}
+.seg-btn{font-family:var(--mono);font-size:12px;letter-spacing:.02em;color:var(--ink-50);background:transparent;border:none;border-radius:5px;padding:9px 16px;cursor:pointer;transition:background .25s,color .25s}
+.seg-btn:hover{color:var(--ink)}
+.seg-btn.active{background:var(--paper);color:var(--ink);box-shadow:0 1px 2px rgba(26,24,19,.09)}
+.frame{max-width:820px;margin:0 auto;background:var(--paper);border:1px solid var(--hair);border-radius:12px;box-shadow:0 1px 0 var(--hair-2),0 36px 80px -44px rgba(26,24,19,.32);overflow:hidden}
+.bar-top{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--hair)}
+.bar-top .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-35);display:flex;align-items:center;gap:8px}
+.bar-top .lbl::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--paper);border:1.4px solid var(--teal);box-shadow:0 8px 0 -2.2px var(--teal)}
+.replay{font-family:var(--mono);font-size:11px;color:var(--ink-50);background:transparent;border:1px solid var(--hair);border-radius:5px;padding:6px 12px;cursor:pointer;transition:border-color .2s,color .2s}
+.replay:hover{border-color:var(--teal);color:var(--teal)}
+.stage{display:grid;grid-template-columns:1fr 1.18fr;min-height:370px}
+.feed{padding:26px;border-right:1px solid var(--hair);display:flex;flex-direction:column;gap:13px}
+.read{padding:24px 28px}
+.zlab{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-35);margin-bottom:3px}
+.urlbar{display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--hair);border-radius:6px;padding:10px 12px;opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.demo.s1 .urlbar{opacity:1;transform:none}
+.urlbar .glyph{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--ink-35);flex-shrink:0;position:relative}
+.urlbar .glyph::after{content:"";position:absolute;inset:3px;border-top:1.5px solid var(--ink-35)}
+.url{font-family:var(--mono);font-size:12px;color:var(--ink);white-space:nowrap;overflow:hidden}
+.caret{width:1.5px;height:14px;background:var(--teal);animation:blink 1s steps(1) infinite}
+.demo.s2 .caret,.demo.s3 .caret,.demo.bars .caret{opacity:0}
+@keyframes blink{50%{opacity:0}}
+.chip{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--hair);border-radius:6px;padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--ink-70);opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease),transform .55s var(--ease)}
+.demo.s1b .chip{opacity:1;transform:none}
+.demo.s2 .chip{transform:translateX(8px) scale(.98);opacity:.5}
+.chip .ico{width:22px;height:26px;border-radius:3px;flex-shrink:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px}
+.chip .ico span{font-size:7px;font-weight:600;letter-spacing:.04em;color:#fff;font-family:var(--mono)}
+.chip.pdf .ico{background:#A23B33}.chip.xls .ico{background:#1E7A4D}
+.instr{margin-top:auto;display:flex;align-items:center;gap:14px;padding-top:6px}
+.instr svg{flex-shrink:0;overflow:visible}
+.scanline{stroke:var(--teal);stroke-width:1.5;opacity:0}
+.demo.s2 .scanline{opacity:.9;animation:scan 1.4s var(--ease) 1}
+@keyframes scan{0%{transform:translateY(0)}100%{transform:translateY(72px)}}
+.reading{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--ink-50);line-height:1.85}
+.reading .ck{display:flex;align-items:center;gap:7px;opacity:.3;transition:opacity .3s,color .3s}
+.reading .ck b{width:11px;height:11px;border-radius:50%;border:1.3px solid var(--ink-35);display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:transparent}
+.reading .ckd{display:block;font-size:9px;color:var(--ink-35);margin-left:18px;margin-top:-2px;margin-bottom:2px;line-height:1.3}
+.demo.d1 .ck.k1,.demo.d2 .ck.k2,.demo.d3 .ck.k3,.demo.d4 .ck.k4{opacity:1;color:var(--teal)}
+.demo.d1 .ck.k1 b,.demo.d2 .ck.k2 b,.demo.d3 .ck.k3 b,.demo.d4 .ck.k4 b{border-color:var(--teal);color:var(--teal)}
+
+.brief{opacity:0;transform:translateY(10px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.demo.bars .brief{opacity:1;transform:none}
+.b-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:1px solid var(--hair);padding-bottom:14px}
+.b-head .bsub{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-35)}
+.b-head h3{font-size:18px;font-weight:700;letter-spacing:-.02em;margin:6px 0 0;line-height:1.15}
+.rbox{text-align:right;flex-shrink:0}
+.rbox .rk{font-family:var(--mono);font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-35)}
+.grade-letter{font-family:var(--mono);font-weight:700;font-size:42px;line-height:.95;opacity:0;filter:blur(6px);transform:scale(.94);transition:opacity .5s var(--ease),filter .5s var(--ease),transform .5s var(--settle);font-variant-numeric:tabular-nums}
+.demo.gradeshow .grade-letter{opacity:1;filter:blur(0);transform:none}
+.outlook{font-family:var(--mono);font-size:10px;opacity:0;transition:opacity .4s}
+.demo.outshow .outlook{opacity:1}
+.b-mid{display:flex;gap:22px;margin-top:16px}
+.gapcol{flex-shrink:0;text-align:center}
+.gapcol svg{overflow:visible}
+.gapg{transform-origin:18px 6px;transform:rotate(0deg);transition:transform 1.1s var(--settle)}
+.gapcol .gl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-50);margin-top:6px;transition:opacity .3s;opacity:0}
+.demo.swung .gl{opacity:1}
+.dims{flex:1}
+.dim{margin-bottom:8px}
+.dim .r{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:var(--ink-50);margin-bottom:4px}
+.track{height:3.5px;background:var(--hair);border-radius:3px;overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--teal);border-radius:3px;transition:width .9s var(--settle)}
+.demo.bars .track i{width:var(--w)}
+.conf{display:flex;align-items:center;gap:8px;margin-top:12px;font-family:var(--mono);font-size:9.5px;color:var(--ink-50)}
+.conf .dots span{width:6px;height:6px;border-radius:50%;background:var(--hair);display:inline-block;margin-right:3px;transition:background .3s}
+.demo.confshow .conf .dots span.on{background:var(--teal)}
+.qn{margin-top:16px;padding-top:14px;border-top:1px solid var(--hair);display:flex;gap:10px;align-items:flex-start;opacity:0;transform:translateY(6px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.demo.s4 .qn{opacity:1;transform:none}
+.qn .q{font-family:var(--mono);font-size:9.5px;color:var(--teal);padding-top:2px}
+.qn p{margin:0;font-size:13.5px;color:var(--ink);line-height:1.42;font-weight:500}
+.live .foot{text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--ink-35);margin-top:16px}
+.live .takeaway{text-align:center;font-size:18px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin-top:18px}
+.live .takeaway em{font-style:normal;color:var(--teal)}
+
+section{padding:92px 0;border-top:1px solid var(--hair);position:relative;z-index:2}
+.sec-head{max-width:32em}
+.sec-head h2{font-size:clamp(28px,3.8vw,42px);margin-top:16px}
+.sec-head .sub{color:var(--ink-70);margin:16px 0 0;font-size:18px}
+
+.personas{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:48px;background:var(--hair);border:1px solid var(--hair);border-radius:6px;overflow:hidden}
+.persona{background:var(--paper);padding:30px 28px;display:flex;flex-direction:column}
+.persona .pt{font-size:19px;font-weight:700;letter-spacing:-.015em;line-height:1.2}
+.persona p{margin:11px 0 0;color:var(--ink-70);font-size:15px}
+.persona .cad{margin-top:auto;padding-top:18px;font-family:var(--mono);font-size:10.5px;color:var(--teal);letter-spacing:.02em;line-height:1.6}
+.persona .cad span{display:block;color:var(--ink-35);text-transform:uppercase;letter-spacing:.13em;font-size:9px;margin-bottom:5px}
+
+.scare{background:var(--panel);border-top:1px solid var(--hair)}
+.scare-in{padding:72px 0;max-width:42em}
+.scare .big{font-size:clamp(24px,3.2vw,36px);font-weight:700;letter-spacing:-.03em;line-height:1.12;margin-top:16px}
+.scare p{color:var(--ink-70);margin:20px 0 0;font-size:17px;max-width:40em}
+
+.steps{margin-top:44px;border-top:1px solid var(--hair)}
+.step{display:grid;grid-template-columns:64px 1fr;gap:24px;padding:26px 0;border-bottom:1px solid var(--hair);align-items:baseline}
+.step .sn{font-family:var(--mono);font-size:12px;color:var(--teal);padding-top:4px}
+.step h3{font-size:21px;font-weight:700;letter-spacing:-.015em;margin:0 0 6px}
+.step p{margin:0;color:var(--ink-70);font-size:16px;max-width:42em}
+.step .exs{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.step .ex{font-family:var(--mono);font-size:10.5px;background:var(--panel);border:1px solid var(--hair);border-radius:4px;padding:5px 9px;color:var(--ink-50)}
+
+.scale-box{background:var(--paper);border:1px solid var(--hair);border-radius:10px;padding:30px;margin-top:48px;box-shadow:0 20px 50px -30px rgba(26,24,19,.22)}
+.scale-ends{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-35);margin-bottom:12px}
+.scale-track{position:relative;height:2px;background:linear-gradient(90deg,var(--gA),var(--gB),var(--gC),var(--gD),var(--gF));border-radius:2px;margin:0 6px}
+.scale-cols{display:grid;grid-template-columns:repeat(5,1fr)}
+.scale-col{padding-top:16px;position:relative;padding-right:12px}
+.scale-col::before{content:"";position:absolute;top:-2px;left:0;width:1px;height:8px;background:var(--ink-35)}
+.scale-col .sw{font-size:16px;font-weight:700}.scale-col .sw.a{color:var(--gA)}.scale-col .sw.b{color:var(--gB)}.scale-col .sw.c{color:var(--gC)}.scale-col .sw.d{color:var(--gD)}.scale-col .sw.f{color:var(--gF)}
+.scale-col .sm{font-family:var(--mono);font-size:10px;color:var(--ink-50);line-height:1.5;margin-top:4px}
+.sample-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+.scard{background:var(--paper);border:1px solid var(--hair);border-radius:9px;padding:20px;text-align:center}
+.scard .who{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-35)}
+.scard svg{margin:14px auto 10px;display:block;overflow:visible}
+.pl{transition:transform 1s var(--settle)}
+.scard .sg{font-size:36px;font-weight:700;line-height:.95}.scard .sg.b{color:var(--gB)}.scard .sg.c{color:var(--gC)}.scard .sg.d{color:var(--gD)}
+.scard .smod{font-family:var(--mono);font-size:10px;color:var(--ink-50);margin-top:8px;line-height:1.6}.scard .smod b{color:var(--ink-70);font-weight:500}
+
+.pricing h2{font-size:clamp(32px,4.6vw,52px);margin-top:16px;max-width:16ch}
+.arg{margin-top:48px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--hair);border:1px solid var(--hair);border-radius:8px;overflow:hidden}
+.arg-card{background:var(--paper);padding:28px 26px}.arg-card .n{font-family:var(--mono);font-size:11px;color:var(--teal)}
+.arg-card h3{font-size:18px;font-weight:700;letter-spacing:-.015em;margin:10px 0 8px;line-height:1.2}.arg-card p{margin:0;color:var(--ink-70);font-size:15px}
+.bridge{margin:48px 0;font-size:20px;font-weight:500;letter-spacing:-.01em;max-width:38em;line-height:1.45}.bridge em{font-style:normal;color:var(--teal);font-weight:600}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tier{background:var(--paper);border:1px solid var(--hair);border-radius:10px;padding:32px 28px;display:flex;flex-direction:column;position:relative;transition:box-shadow .3s,border-color .3s}
+.tier:hover{box-shadow:0 20px 50px -28px rgba(26,24,19,.28);border-color:rgba(26,24,19,.22)}
+.tier.pop{border-color:var(--teal);box-shadow:0 24px 60px -30px rgba(14,92,88,.28)}
+.tier.pop::before{content:"Most common";position:absolute;top:-11px;left:28px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--paper);background:var(--teal);padding:4px 10px;border-radius:4px}
+.t-name{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-50);font-weight:500}
+.t-price{margin:16px 0 6px;display:flex;align-items:baseline;gap:6px}.t-price .big{font-size:42px;font-weight:700;letter-spacing:-.03em;line-height:.95}.t-price .unit{font-family:var(--mono);font-size:13px;color:var(--ink-50)}
+.t-who{font-size:16px;font-weight:500;color:var(--ink);margin:0 0 20px;line-height:1.3}
+.t-list{list-style:none;padding:0;margin:0 0 28px;flex:1}
+.t-list li{padding:8px 0 8px 22px;position:relative;font-size:15px;color:var(--ink-70);border-top:1px solid var(--hair)}.t-list li:first-child{border-top:none}
+.t-list li::before{content:"";position:absolute;left:0;top:15px;width:8px;height:8px;border-radius:50%;border:1.5px solid var(--teal);background:var(--paper)}
+.t-list li.on::before{background:var(--teal)}.t-list li.off{color:var(--ink-35)}.t-list li.off::before{border-color:var(--ink-35)}
+.t-btn{display:block;text-align:center;font-family:var(--mono);font-size:13px;font-weight:500;padding:14px;border-radius:6px;border:1px solid var(--hair);color:var(--ink);background:var(--paper);text-decoration:none;cursor:pointer;transition:background .25s,border-color .25s,color .25s}
+.t-btn:hover{border-color:var(--teal);background:var(--teal-soft)}
+.tier.pop .t-btn{background:var(--ink);color:var(--paper);border-color:var(--ink)}.tier.pop .t-btn:hover{background:var(--teal);border-color:var(--teal)}
+.t-note{font-family:var(--mono);font-size:10.5px;color:var(--ink-35);text-align:center;margin-top:10px}
+.pricing-close{margin-top:42px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--ink-50);line-height:1.7;max-width:38em;margin-left:auto;margin-right:auto}
+
+.method{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:48px;background:var(--hair);border:1px solid var(--hair);border-radius:6px;overflow:hidden}
+.m-card{background:var(--paper);padding:32px}.m-card .n{font-family:var(--mono);font-size:11px;color:var(--teal)}
+.m-card h3{font-size:20px;font-weight:700;letter-spacing:-.015em;margin:13px 0 10px;line-height:1.22}.m-card p{margin:0;color:var(--ink-70);font-size:15px}
+.axiom{margin-top:30px;padding:34px;border:1px solid var(--teal);border-radius:6px;background:var(--teal-soft)}
+.axiom p{font-size:clamp(21px,3vw,28px);font-weight:700;letter-spacing:-.02em;line-height:1.28;margin:12px 0 0;max-width:30em}
+
+.principle{display:grid;grid-template-columns:.85fr 1.15fr;gap:50px;align-items:center}
+.principle .big{font-size:clamp(27px,3.6vw,38px);font-weight:700;letter-spacing:-.03em;line-height:1.12}
+.principle p{color:var(--ink-70);margin:0 0 16px;font-size:17px}.principle p:last-child{margin-bottom:0}
+.principle strong{color:var(--ink);font-weight:700}
+
+.founder{max-width:720px;margin:0 auto;text-align:center}
+.founder .quote{font-size:clamp(22px,3vw,30px);font-weight:500;letter-spacing:-.02em;line-height:1.34;margin-top:22px}
+.founder .quote em{font-style:normal;color:var(--teal)}
+.founder .sign{font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--ink-50);margin-top:28px}.founder .sign b{color:var(--ink);font-weight:600}
+
+.sec-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;margin-top:44px;background:var(--hair);border:1px solid var(--hair);border-radius:6px;overflow:hidden}
+.sec-item{background:var(--paper);padding:30px 32px}.sec-item .k{font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--teal)}
+.sec-item p{margin:10px 0 0;color:var(--ink-70);font-size:15px}
+.sec-close{font-size:17px;color:var(--ink);margin-top:26px;font-weight:600}
+.disclaim{font-family:var(--mono);font-size:11.5px;color:var(--ink-35);margin-top:12px;line-height:1.65;max-width:48em}
+
+.final{text-align:center;padding:104px 0}.final h2{font-size:clamp(30px,4.4vw,50px);letter-spacing:-.035em}
+.final .capture{margin:32px auto 0}.final .micro{text-align:center}
+footer{border-top:1px solid var(--hair);padding:32px 0;position:relative;z-index:2}
+.foot-in{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;color:var(--ink-35);letter-spacing:.03em;gap:16px}
+
+@media(max-width:860px){.personas,.method,.arg,.tiers,.sample-cards{grid-template-columns:1fr}.principle{grid-template-columns:1fr;gap:26px}}
+@media(max-width:640px){.stage{grid-template-columns:1fr}.feed{border-right:none;border-bottom:1px solid var(--hair)}.sec-grid{grid-template-columns:1fr}.scale-cols{grid-template-columns:1fr 1fr;gap:12px 0}}
+@media(max-width:520px){body{font-size:16px}.field{flex-direction:column}.field button{padding:14px}.b-head{flex-direction:column}.rbox{text-align:left}.step{grid-template-columns:1fr;gap:6px}.seg{flex-wrap:wrap}.foot-in{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.reveal{opacity:1;transform:none;transition:none}.pl,.gapg{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in">
+  <div class="brand"><svg class="mark" width="13" height="29" viewBox="0 0 14 30" aria-hidden="true"><circle class="anchor" cx="7" cy="3" r="2.3"/><line class="line" x1="7" y1="5" x2="7" y2="22"/><circle class="bob-m" cx="7" cy="25.5" r="3.5"/></svg><span>Plumbline</span></div>
+  <a class="nav-cta" href="#access">Early access</a>
+</div></nav>
+
+<header><div class="wrap hero">
+  <span class="eyebrow">Responsible AI risk intelligence</span>
+  <h1>Find true vertical on AI risk.</h1>
+  <p class="lede">An honest read on AI risk, built from evidence, not a questionnaire. A grade, the gap between claimed and proven, and the questions worth asking next.</p>
+  <form class="capture" id="cap1" novalidate>
+    <div class="field"><input type="email" id="email1" placeholder="you@company.com" aria-label="Email" required /><button type="submit">Get early access</button></div>
+    <p class="micro">Three free briefs at launch. No login. Your inputs are never stored.</p>
+    <p class="confirm">You are on the list.</p>
+  </form>
+</div></header>
+
+<!-- LIVE READ -->
+<div class="live"><div class="wrap">
+  <p class="cap reveal">The Plumb Grade, start to finish</p>
+  <div class="seg-wrap reveal"><div class="seg" role="tablist"><button class="seg-btn" data-k="a" role="tab">Cloud platform</button><button class="seg-btn active" data-k="b" role="tab">Health insurer</button><button class="seg-btn" data-k="c" role="tab">AI vendor</button></div></div>
+  <div class="frame demo reveal" id="demo">
+    <div class="bar-top"><span class="lbl">Plumbline · live read</span><button class="replay" id="replay">Replay</button></div>
+    <div class="stage">
+      <div class="feed">
+        <div><div class="zlab">Give it a subject</div><div class="urlbar"><span class="glyph"></span><span class="url" id="url"></span><span class="caret"></span></div></div>
+        <div class="chip pdf"><span class="ico"><span>PDF</span></span>AI_Governance_Policy.pdf</div>
+        <div class="chip xls"><span class="ico"><span>XLS</span></span>vendor_risk_checklist.xlsx</div>
+        <div class="instr">
+          <svg width="40" height="92" viewBox="0 0 40 92" aria-hidden="true"><line x1="20" y1="6" x2="20" y2="86" stroke="var(--hair)" stroke-width="1" stroke-dasharray="2 5"/><line x1="20" y1="6" x2="20" y2="78" stroke="var(--teal)" stroke-width="1.5"/><circle cx="20" cy="6" r="2.6" fill="var(--ink)"/><circle cx="20" cy="80" r="6.5" fill="var(--paper)" stroke="var(--teal)" stroke-width="2"/><line class="scanline" x1="6" y1="10" x2="34" y2="10"/></svg>
+          <div class="reading">
+            <div class="ck k1"><b>✓</b>Provenance<span class="ckd">traceable to a credible source</span></div>
+            <div class="ck k2"><b>✓</b>Quality<span class="ckd">strength of each piece on its own</span></div>
+            <div class="ck k3"><b>✓</b>Consistency<span class="ckd">policy, product, and public story agree</span></div>
+            <div class="ck k4"><b>✓</b>Completeness<span class="ckd">how much of what should exist does</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="read"><div class="brief">
+        <div class="b-head"><div><div class="bsub">Responsible AI risk brief</div><h3 id="bSub">-</h3></div><div class="rbox"><div class="rk">Plumb Grade</div><div class="grade-letter" id="bGrade">-</div><div class="outlook" id="bOutlook">-</div></div></div>
+        <div class="b-mid">
+          <div class="gapcol"><svg width="36" height="86" viewBox="0 0 36 86" aria-hidden="true"><line x1="18" y1="6" x2="18" y2="80" stroke="var(--hair)" stroke-width="1" stroke-dasharray="2 5"/><g class="gapg" id="bGap"><line x1="18" y1="6" x2="18" y2="76" stroke="var(--teal)" stroke-width="1.5"/><circle cx="18" cy="78" r="5.5" fill="var(--paper)" stroke="var(--teal)" stroke-width="2"/></g><circle cx="18" cy="6" r="2.3" fill="var(--ink)"/></svg><div class="gl" id="bGl">-</div></div>
+          <div class="dims" id="bDims"></div>
+        </div>
+        <div class="qn"><span class="q">Q1</span><p id="bQ">-</p></div>
+      </div></div>
+    </div>
+  </div>
+  <p class="takeaway reveal" id="takeaway"></p>
+  <p class="foot reveal">Illustrative. Composite subjects, not real companies.</p>
+</div></div>
+
+<!-- WHO THIS IS FOR -->
+<section><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">Who this is for</span><h2>You already think in evidence.</h2></div>
+  <div class="personas reveal">
+    <div class="persona"><div class="pt">You put AI into real decisions</div><p>Insurers, banks, hospitals, large employers. You moved AI into choices that affect people, and you know principles are not proof. Find your own gap before a regulator or a reporter does.</p><div class="cad"><span>Triggers</span>Before deploying a new model. After a vendor update. Before a regulatory review. Every quarter as a baseline.</div></div>
+    <div class="persona"><div class="pt">You depend on someone else's AI</div><p>Buyers, acquirers, investors. Every vendor ships AI now, and the newest tools carry risk no one has mapped, sometimes not even the team that built them.</p><div class="cad"><span>Triggers</span>Before you sign. At renewal. The week a vendor ships a major AI feature.</div></div>
+    <div class="persona"><div class="pt">You answer for it</div><p>Boards, risk committees, CIOs. When someone asks whether you are exposed on AI, you want a defensible answer, not a feeling. Walk in with the grade, the gap, and the questions already framed.</p><div class="cad"><span>Triggers</span>Before every committee cycle. Before any regulator or insurer conversation.</div></div>
+  </div>
+</div></section>
+
+<!-- THE NEW RISK -->
+<div class="scare"><div class="wrap scare-in reveal">
+  <span class="eyebrow">The new risk</span>
+  <div class="big">The fastest AI tools carry attack surfaces their own builders have not mapped. When it breaks, the company pays.</div>
+  <p>Plumbline reads whether a vendor can show its security or only assert it. The gap between those two is where the next incident lives.</p>
+</div></div>
+
+<!-- HOW IT WORKS -->
+<section><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">How it works</span><h2>From a name to a brief you can act on.</h2></div>
+  <div class="steps reveal">
+    <div class="step"><div class="sn">01</div><div><h3>Name the subject</h3><p>A company, a URL, or pasted policy text. There is no questionnaire. That is the whole idea.</p>
+      <div class="exs"><span class="ex">openai.com/security</span><span class="ex">guidewire.com/products</span><span class="ex">SEC 10-K risk factors</span><span class="ex">vendor_security_response.pdf</span></div></div></div>
+    <div class="step"><div class="sn">02</div><div><h3>Plumbline reads the evidence</h3><p>It gathers what is public and reads anything you provide directly: policies, security questionnaires, vendor documentation. It weighs the evidence for provenance, quality, consistency, and completeness, and separates what is shown from what is only claimed.</p></div></div>
+    <div class="step"><div class="sn">03</div><div><h3>You get the brief</h3><p>The Plumb Grade, the assertion gap, the top risk driver, a confidence level, and the questions worth asking next.</p></div></div>
+    <div class="step"><div class="sn">04</div><div><h3>Take it to the decision</h3><p>Export the brief as a card and bring it to a committee, a vendor conversation, or your own planning. It reads clearly to people who do not live in AI.</p></div></div>
+  </div>
+</div></section>
+
+<!-- THE PLUMB GRADE -->
+<section><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">The Plumb Grade</span><h2>One letter. How far a company leans on claims it cannot show.</h2></div>
+  <div class="scale-box reveal">
+    <div class="scale-ends"><span>True vertical</span><span>Full lean</span></div>
+    <div class="scale-track"></div>
+    <div class="scale-cols">
+      <div class="scale-col"><div class="sw a">A</div><div class="sm">Claims fully demonstrated</div></div>
+      <div class="scale-col"><div class="sw b">B</div><div class="sm">Key claims substantiated</div></div>
+      <div class="scale-col"><div class="sw c">C</div><div class="sm">Partial evidence, major gaps</div></div>
+      <div class="scale-col"><div class="sw d">D</div><div class="sm">Asserted, not shown</div></div>
+      <div class="scale-col"><div class="sw f">F</div><div class="sm">Opaque, no meaningful disclosure</div></div>
+    </div>
+  </div>
+  <div class="sample-cards reveal">
+    <div class="scard"><div class="who">Cloud platform</div><svg width="32" height="72" viewBox="0 0 32 72"><line x1="16" y1="6" x2="16" y2="68" stroke="var(--hair)" stroke-width="1" stroke-dasharray="2 5"/><g class="pl" style="transform-origin:16px 6px;transform:rotate(5deg)"><line x1="16" y1="6" x2="16" y2="62" stroke="var(--teal)" stroke-width="1.5"/><circle cx="16" cy="64" r="5" fill="var(--paper)" stroke="var(--teal)" stroke-width="2"/></g><circle cx="16" cy="6" r="2.2" fill="var(--ink)"/></svg><div class="sg b">B</div><div class="smod">Confidence <b>High</b><br>Outlook <b>Stable</b></div></div>
+    <div class="scard"><div class="who">Health insurer</div><svg width="32" height="72" viewBox="0 0 32 72"><line x1="16" y1="6" x2="16" y2="68" stroke="var(--hair)" stroke-width="1" stroke-dasharray="2 5"/><g class="pl" style="transform-origin:16px 6px;transform:rotate(14deg)"><line x1="16" y1="6" x2="16" y2="62" stroke="var(--teal)" stroke-width="1.5"/><circle cx="16" cy="64" r="5" fill="var(--paper)" stroke="var(--teal)" stroke-width="2"/></g><circle cx="16" cy="6" r="2.2" fill="var(--ink)"/></svg><div class="sg c">C</div><div class="smod">Confidence <b>Moderate</b><br>Outlook <b>Deteriorating</b></div></div>
+    <div class="scard"><div class="who">AI vendor</div><svg width="32" height="72" viewBox="0 0 32 72"><line x1="16" y1="6" x2="16" y2="68" stroke="var(--hair)" stroke-width="1" stroke-dasharray="2 5"/><g class="pl" style="transform-origin:16px 6px;transform:rotate(24deg)"><line x1="16" y1="6" x2="16" y2="62" stroke="var(--teal)" stroke-width="1.5"/><circle cx="16" cy="64" r="5" fill="var(--paper)" stroke="var(--teal)" stroke-width="2"/></g><circle cx="16" cy="6" r="2.2" fill="var(--ink)"/></svg><div class="sg d">D</div><div class="smod">Confidence <b>Low</b><br>Outlook <b>Developing</b></div></div>
+  </div>
+</div></section>
+
+<!-- PRICING -->
+<section class="pricing"><div class="wrap">
+  <div class="reveal"><span class="eyebrow">Pricing</span><h2>A brief costs less than the meeting where you need it.</h2></div>
+  <div class="arg reveal">
+    <div class="arg-card"><div class="n">01</div><h3>Your vendor stack changes every quarter</h3><p>Every new SaaS tool, every new model API, every new integration is a new assessment trigger.</p></div>
+    <div class="arg-card"><div class="n">02</div><h3>The vendors themselves change</h3><p>A vendor graded B in January could be D by September. An acquisition, a new model, an enforcement action. The outlook is the signal to come back.</p></div>
+    <div class="arg-card"><div class="n">03</div><h3>The rules are moving</h3><p>EU AI Act enforcement is live. US state legislation is accelerating. Every new regulation is a re-assessment trigger.</p></div>
+  </div>
+  <p class="bridge reveal">So the model is simple. <em>Start free. Pay per brief when you need one. Subscribe when you own the portfolio.</em></p>
+  <div class="tiers reveal">
+    <div class="tier"><div class="t-name">Free</div><div class="t-price"><span class="big">$0</span></div><p class="t-who">You heard about it. Try it.</p><ul class="t-list"><li class="on">3 briefs, no account needed</li><li class="on">Plumb Grade (A through F)</li><li class="on">Assertion gap and top risk driver</li><li class="on">One key question</li><li class="off">Full evidence breakdown</li><li class="off">Export and share</li><li class="off">Saved history</li></ul><a class="t-btn" href="#access">Run your first brief</a></div>
+    <div class="tier pop"><div class="t-name">On Demand</div><div class="t-price"><span class="big">$29</span><span class="unit">per brief</span></div><p class="t-who">You have a vendor to assess before you sign.</p><ul class="t-list"><li class="on">Pay per read, no subscription</li><li class="on">Plumb Grade with full evidence breakdown</li><li class="on">All four dimensions scored</li><li class="on">Full question set</li><li class="on">Confidence level and outlook</li><li class="on">Export as a shareable card</li><li class="on">Saved brief history</li></ul><a class="t-btn" href="#access">Run a full brief</a><p class="t-note">No subscription. Buy one when you need one.</p></div>
+    <div class="tier"><div class="t-name">Continuous</div><div class="t-price"><span class="big">$249</span><span class="unit">per month</span></div><p class="t-who">You own the portfolio and answer for it.</p><ul class="t-list"><li class="on">Unlimited briefs</li><li class="on">Everything in On Demand</li><li class="on">Saved vendor portfolio</li><li class="on">Re-assessment alerts when vendors change</li><li class="on">Concentration risk flags</li><li class="on">Side-by-side comparisons</li><li class="on">Team seats (up to 5)</li></ul><a class="t-btn" href="#access">Talk to us</a><p class="t-note">Annual billing available.</p></div>
+  </div>
+  <p class="pricing-close reveal">The grade never changes based on what you pay. Only how much of the brief you see.</p>
+</div></section>
+
+<!-- METHOD -->
+<section><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">How it reads the evidence</span><h2>Four principles a questionnaire cannot reach.</h2></div>
+  <div class="method reveal">
+    <div class="m-card"><div class="n">01</div><h3>Evidence is weighted by what backs it</h3><p>An audited control counts for more than a written policy, which counts for more than a public claim. Plumbline scores the strength of the proof, the way a credit analyst trusts a filing over a press release.</p></div>
+    <div class="m-card"><div class="n">02</div><h3>The assertion gap is the headline</h3><p>The number that matters is the distance between what a company claims and what it can show. Auditors and short sellers live in that gap. For AI risk it is the finding.</p></div>
+    <div class="m-card"><div class="n">03</div><h3>Confidence is separate from the grade</h3><p>A strong grade we cannot verify is a different conversation than one we can. We never blend the two. Low confidence at any level is something worth hearing out loud.</p></div>
+    <div class="m-card"><div class="n">04</div><h3>Outlook is a direction, not a level</h3><p>The grade reads where the evidence stands today. The outlook reads where it is heading, and whether the proof is deepening or thinning.</p></div>
+  </div>
+  <div class="axiom reveal"><span class="eyebrow">The stance underneath all of it</span><p>Absence of evidence is evidence. We score opacity as risk. We never wave it through as neutral.</p></div>
+</div></section>
+
+<!-- INDEPENDENCE -->
+<section><div class="wrap principle reveal">
+  <div class="big">A rating is only as trustworthy as the incentive behind it.</div>
+  <div><p>In 2008 the agencies that stamped mortgage bonds AAA were paid by the people issuing them. The conflict was built in, and it was fatal.</p><p>Plumbline runs the other way. <strong>It will never raise a grade for the company being graded.</strong> The people who pay are the people who need the truth. A leader doing diligence, an insurer, a buyer assessing risk.</p><p>That one choice is why a Plumbline read can be trusted to be uncomfortable.</p></div>
+</div></section>
+
+<!-- FOUNDER -->
+<section><div class="wrap founder reveal">
+  <span class="eyebrow">Why this exists</span>
+  <p class="quote">I spent my career where trust has to be earned, not claimed. Capital markets, custody, the software banks run on, insurance. The job never changed. <em>Separate what is verified from what is asserted, and price the difference.</em> AI governance has that exact problem, and nothing built to measure it. So I built one.</p>
+  <div class="sign"><b>Nithila Jeyakumar</b>, Founder. MIT, System Design and Management</div>
+</div></section>
+
+<!-- SECURITY -->
+<section><div class="wrap">
+  <div class="sec-head reveal"><span class="eyebrow">Built honest</span><h2>What happens to what you give it.</h2></div>
+  <div class="sec-grid reveal">
+    <div class="sec-item"><div class="k">Keys stay on the server</div><p>We call the model from the server. No credential ever reaches your browser.</p></div>
+    <div class="sec-item"><div class="k">URLs are fetched with care</div><p>Public links only, over HTTPS, with private and metadata addresses blocked, plus timeouts and size caps.</p></div>
+    <div class="sec-item"><div class="k">Your input is data, never instructions</div><p>Everything you paste is treated as untrusted content, so it cannot redirect the assessment.</p></div>
+    <div class="sec-item"><div class="k">Nothing is kept</div><p>We do not log what you send, and we do not store your briefs. Every read is stateless.</p></div>
+  </div>
+  <p class="sec-close reveal">We hold ourselves to the bar we measure others against.</p>
+  <p class="disclaim reveal">Plumbline is in early access. It sharpens the questions worth asking. It does not replace counsel, an audit, or a regulator, and it does not pretend to.</p>
+</div></section>
+
+<!-- FINAL CTA -->
+<div class="wrap final reveal" id="access">
+  <span class="eyebrow" style="justify-content:center">Early access</span>
+  <h2 style="margin-top:16px">See what your evidence actually says.</h2>
+  <form class="capture" id="cap2" novalidate>
+    <div class="field"><input type="email" id="email2" placeholder="you@company.com" aria-label="Email" required /><button type="submit">Get early access</button></div>
+    <p class="micro">Free at launch. On Demand and Continuous coming soon.</p>
+    <p class="confirm">You are on the list.</p>
+  </form>
+</div>
+
+<footer><div class="wrap foot-in"><span>Plumbline. Responsible AI risk intelligence.</span><span>Early access. 2026</span></div></footer>
+
+<script>
+var DATA={
+  a:{url:"northpoint-cloud.com/trust",sub:"A global cloud platform",grade:"B",gc:'var(--gB)',outlook:"Stable",oc:'var(--gB)',angle:6,gl:"Gap · Narrow",
+     dims:[["Provenance","Strong",84],["Quality","Strong",83],["Consistency","Strong",80],["Completeness","Good",72]],conf:5,
+     q:"Your evaluations are public. When did one of them last change a launch decision?",
+     take:"\"They are a <em>B</em> on Plumb.\" Strong, but the supply chain is the thin edge."},
+  b:{url:"northwind-health.com/ai-policy",sub:"A midsize health insurer",grade:"C",gc:'var(--gC)',outlook:"Deteriorating",oc:'var(--gC)',angle:17,gl:"Gap · Wide",
+     dims:[["Provenance","Thin",32],["Quality","Moderate",54],["Consistency","Moderate",58],["Completeness","Low",26]],conf:3,
+     q:"Your principles reference human oversight. Can you show the control, its owner, and the last time it caught something?",
+     take:"\"They are a <em>C</em> on Plumb.\" Claims outrun proof exactly where the stakes are highest."},
+  c:{url:"getfora.ai/security",sub:"An early stage AI vendor",grade:"D",gc:'var(--gD)',outlook:"Developing",oc:'var(--gD)',angle:25,gl:"Gap · Very wide",
+     dims:[["Provenance","Thin",22],["Quality","Moderate",46],["Consistency","Low",34],["Completeness","Thin",20]],conf:2,
+     q:"Which of your safety claims can you show us evidence for this week?",
+     take:"\"They are a <em>D</em> on Plumb.\" The product is moving faster than its evidence."}
+};
+var ORDER=["b","a","c"],demo=document.getElementById('demo'),urlEl=document.getElementById('url'),takeEl=document.getElementById('takeaway');
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+var timers=[],cycle=null,current="b",started=false;
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function clearT(){timers.forEach(clearTimeout);timers=[];}
+function at(ms,fn){timers.push(setTimeout(fn,ms));}
+
+function fillBrief(k){
+  var d=DATA[k];
+  document.getElementById('bSub').textContent=d.sub;
+  var gl=document.getElementById('bGrade');gl.textContent=d.grade;gl.style.color=d.gc;
+  var ol=document.getElementById('bOutlook');ol.textContent='Outlook '+d.outlook;ol.style.color=d.oc;
+  document.getElementById('bGl').textContent=d.gl;
+  // reset gap to vertical
+  document.getElementById('bGap').style.transition='none';
+  document.getElementById('bGap').style.transform='rotate(0deg)';
+  void document.getElementById('bGap').offsetWidth;
+  document.getElementById('bGap').style.transition='transform 1.1s cubic-bezier(.34,.01,.2,1)';
+  var dh='';d.dims.forEach(function(x){dh+='<div class="dim"><div class="r"><span>'+esc(x[0])+'</span><span>'+esc(x[1])+'</span></div><div class="track"><i style="--w:'+x[2]+'%"></i></div></div>';});
+  var cf='<div class="conf"><span>Confidence</span><span class="dots">';for(var i=1;i<=5;i++){cf+='<span class="'+(i<=d.conf?'on':'')+'"></span>';}cf+='</span><span>'+(d.conf>=4?'High':d.conf===3?'Moderate':'Low')+'</span></div>';
+  document.getElementById('bDims').innerHTML=dh+cf;
+  document.getElementById('bQ').textContent=d.q;
+  takeEl.innerHTML=d.take;
+}
+function swingGap(k){document.getElementById('bGap').style.transform='rotate('+DATA[k].angle+'deg)';}
+function setSeg(k){document.querySelectorAll('.seg-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-k')===k);});}
+function typeUrl(text){urlEl.textContent='';var i=0;(function t(){if(i<=text.length){urlEl.textContent=text.slice(0,i);i++;timers.push(setTimeout(t,38));}})();}
+
+function finalState(k){clearT();current=k;setSeg(k);urlEl.textContent=DATA[k].url;fillBrief(k);
+  document.getElementById('bGap').style.transform='rotate('+DATA[k].angle+'deg)';
+  demo.className='frame demo s1 s1b s2 d1 d2 d3 d4 bars swung confshow gradeshow outshow s4';}
+
+function playFull(k){
+  clearT();current=k;setSeg(k);demo.className='frame demo';void demo.offsetWidth;urlEl.textContent='';fillBrief(k);
+  at(200,function(){demo.classList.add('s1');typeUrl(DATA[k].url);});
+  at(950,function(){demo.classList.add('s1b');});
+  at(1750,function(){demo.classList.add('s2');});
+  at(2100,function(){demo.classList.add('d1');});
+  at(2450,function(){demo.classList.add('d2');});
+  at(2800,function(){demo.classList.add('d3');});
+  at(3150,function(){demo.classList.add('d4');});
+  at(3600,function(){demo.classList.add('bars');});        // bars draw
+  at(4300,function(){swingGap(k);demo.classList.add('swung');});  // plumb swings to lean
+  at(5000,function(){demo.classList.add('confshow');});    // confidence fills
+  at(5400,function(){demo.classList.add('gradeshow');});   // grade resolves
+  at(5700,function(){demo.classList.add('outshow');});     // outlook
+  at(6100,function(){demo.classList.add('s4');});          // question lands
+}
+
+function playResolve(k){
+  clearT();current=k;setSeg(k);urlEl.textContent=DATA[k].url;
+  demo.classList.remove('bars','swung','confshow','gradeshow','outshow','s4','d1','d2','d3','d4','s2');
+  void demo.offsetWidth;fillBrief(k);
+  at(60,function(){demo.classList.add('s1','s1b','s2');});
+  at(360,function(){demo.classList.add('d1');});
+  at(600,function(){demo.classList.add('d2');});
+  at(840,function(){demo.classList.add('d3');});
+  at(1080,function(){demo.classList.add('d4');});
+  at(1400,function(){demo.classList.add('bars');});
+  at(2000,function(){swingGap(k);demo.classList.add('swung');});
+  at(2600,function(){demo.classList.add('confshow');});
+  at(2900,function(){demo.classList.add('gradeshow');});
+  at(3150,function(){demo.classList.add('outshow');});
+  at(3500,function(){demo.classList.add('s4');});
+}
+
+function startCycle(){if(reduce||cycle)return;cycle=setInterval(function(){var idx=(ORDER.indexOf(current)+1)%ORDER.length;playResolve(ORDER[idx]);},11000);}
+function stopCycle(){if(cycle){clearInterval(cycle);cycle=null;}}
+document.querySelectorAll('.seg-btn').forEach(function(btn){btn.addEventListener('click',function(){stopCycle();var k=btn.getAttribute('data-k');if(reduce){finalState(k);}else{playResolve(k);}});});
+document.getElementById('replay').addEventListener('click',function(){stopCycle();if(reduce){finalState(current);}else{playFull(current);startCycle();}});
+if(reduce){finalState('b');}
+else{var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){if(!started){started=true;playFull('b');startCycle();}else{startCycle();}}else{stopCycle();}});},{threshold:.3});io.observe(demo);}
+
+function wire(f,inp){var form=document.getElementById(f),input=document.getElementById(inp);
+  form.addEventListener('submit',function(e){e.preventDefault();var v=(input.value||'').trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){input.focus();input.style.borderColor='var(--gD)';return;}
+    try{fetch('https://formspree.io/f/mwvdebya',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:v})}).catch(function(){});}catch(_){}
+    form.classList.add('done');});}
+wire('cap1','email1');wire('cap2','email2');
+
+var els=document.querySelectorAll('.reveal');
+if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});}
+else{var ro=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');ro.unobserve(x.target);}});},{threshold:.12,rootMargin:'0px 0px -8% 0px'});els.forEach(function(e){ro.observe(e);});}
+
+if(!reduce){document.querySelectorAll('.scard .pl').forEach(function(g){var f=g.style.transform;g.style.transform='rotate(0deg)';
+  var cio=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){g.style.transform=f;cio.unobserve(x.target);}});},{threshold:.4});cio.observe(g.closest('.scard'));});}
+</script>
+</body>
+</html>
